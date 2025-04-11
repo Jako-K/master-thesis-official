@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Information Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+    <style>
+        h2 {
+            text-align: center;
+            margin-top: 5px;
+        }
+        form {
+            max-width: 500px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 20px auto 0;
+        }
+        input[type="number"], select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        label {
+            margin-bottom: 5px;
+            font-weight: normal;
+        }
+
+        #preferred-language-buttons, #sex-buttons {
+            display: flex;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+        .preferred-language-button, .sex-button {
+            cursor: pointer;
+            margin: 5px 0;
+            padding: 10px;
+            background: #e4e4e4;
+            border-radius: 4px;
+            flex: 1;
+            text-align: center;
+            user-select: none; /* Prevents text selection */
+        }
+        .preferred-language-button.active, .sex-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .check-mark-container-all {
+            margin-top: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .check-mark-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .check-mark-container input[type="checkbox"],
+        .check-mark-container input[type="radio"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+        .check-mark-container label {
+            font-weight: normal;
+            position: relative;
+            top: 3px;
+        }
+        button {
+            width: 100%;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<form id="userInfoForm">
+    <h2>Participant Information</h2>
+
+    <label for="preferred-language">Select your preferred language / Vælg dit foretrukne sprog:</label>
+    <div id="preferred-language-buttons">
+        <span class="preferred-language-button" id="prefer-english" onclick="selectLanguage('prefer-english')">English</span>
+        <span class="preferred-language-button" id="prefer-danish" onclick="selectLanguage('prefer-danish')">Dansk</span>
+    </div>
+    <input type="hidden" id="preferred-language" name="preferred-language">
+
+    <label for="age">Age:</label>
+    <input type="number" id="age" name="age" min="0" required>
+
+    <label for="sex">Gender:</label>
+    <div id="sex-buttons">
+        <span class="sex-button" id="male" onclick="selectSex('male')">Male</span>
+        <span class="sex-button" id="female" onclick="selectSex('female')">Female</span>
+    </div>
+    <input type="hidden" id="sex" name="sex">
+
+    <label for="birthNationality">Select the country where you were born:</label>
+    <select id="birthNationality" name="birthNationality" required>
+        {% for country in country_list %}
+            <option value="{{ country }}">{{ country }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="currentNationality">Select the country where you currently live:</label>
+    <select id="currentNationality" name="currentNationality" required>
+        {% for country in country_list %}
+            <option value="{{ country }}">{{ country }}</option>
+        {% endfor %}
+    </select>
+
+    <label for="musicHoursQuestions">How many hours a day do you listen to music?</label>
+    <div class="check-mark-container-all">
+        <div class="check-mark-container">
+            <input type="radio" id="hours_none" name="musicHours" value="I don't listen to music" required>
+            <label for="hours_none">I don't listen to music</label>
+        </div>
+        <div class="check-mark-container">
+            <input type="radio" id="hours_less_than_1" name="musicHours" value="Less than an hour">
+            <label for="hours_less_than_1">Less than an hour</label>
+        </div>
+        <div class="check-mark-container">
+            <input type="radio" id="hours_between_1_3" name="musicHours" value="Between 1 and 3 hours">
+            <label for="hours_between_1_3">Between 1 and 3 hours</label>
+        </div>
+        <div class="check-mark-container">
+            <input type="radio" id="hours_more_than_3" name="musicHours" value="More than 3 hours">
+            <label for="hours_more_than_3">More than 3 hours</label>
+        </div>
+    </div>
+
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userLanguage = navigator.language || navigator.userLanguage;
+
+        // Automatically select Danish if the user's language is Danish
+        if (userLanguage.startsWith('da')) {
+            selectLanguage('prefer-danish');
+        } else {
+            selectLanguage('prefer-english');
+        }
+    });
+
+    function updateTextToDanish() {
+        // Update form title
+        document.querySelector('h2').textContent = 'Deltageroplysninger';
+
+        // Update buttons for language selection
+        document.getElementById('prefer-english').textContent = 'Engelsk';
+        document.getElementById('prefer-danish').textContent = 'Dansk';
+
+        // Update labels
+        document.querySelector('label[for="age"]').textContent = 'Alder:';
+        document.querySelector('label[for="sex"]').textContent = 'Vælg dit køn:';
+        document.querySelector('label[for="birthNationality"]').textContent = 'Vælg det land, hvor du blev født:';
+        document.querySelector('label[for="currentNationality"]').textContent = 'Vælg det land, hvor du bor nu:';
+        document.querySelector('label[for="musicHoursQuestions"]').textContent = 'Hvor mange timer om dagen lytter du til musik?';
+
+        // Update gender buttons
+        document.getElementById('male').textContent = 'Mand';
+        document.getElementById('female').textContent = 'Kvinde';
+
+        // Update music listening options
+        document.querySelector('label[for="hours_none"]').textContent = 'Jeg lytter ikke til musik';
+        document.querySelector('label[for="hours_less_than_1"]').textContent = 'Mindre end en time';
+        document.querySelector('label[for="hours_between_1_3"]').textContent = 'Mellem 1 og 3 timer';
+        document.querySelector('label[for="hours_more_than_3"]').textContent = 'Mere end 3 timer';
+
+        // Update submit button
+        document.querySelector('button[type="submit"]').textContent = 'Indsend';
+    }
+
+    // Add call to the function when Danish is selected
+    function selectLanguage(language) {
+        var languageButtons = document.querySelectorAll('.preferred-language-button');
+        languageButtons.forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        document.getElementById(language).classList.add('active');
+        document.getElementById('preferred-language').value = language;
+
+        if (language === 'prefer-danish') {
+            updateTextToDanish();
+        } else {
+            updateTextToEnglish();
+        }
+    }
+
+    function updateTextToEnglish() {
+        // Update form title
+        document.querySelector('h2').textContent = 'Participant Information';
+
+        // Update buttons for language selection
+        document.getElementById('prefer-english').textContent = 'English';
+        document.getElementById('prefer-danish').textContent = 'Dansk';
+
+        // Update labels
+        document.querySelector('label[for="age"]').textContent = 'Age:';
+        document.querySelector('label[for="sex"]').textContent = 'Gender:';
+        document.querySelector('label[for="birthNationality"]').textContent = 'Select the country where you were born:';
+        document.querySelector('label[for="currentNationality"]').textContent = 'Select the country where you currently live:';
+        document.querySelector('label[for="musicHoursQuestions"]').textContent = 'How many hours a day do you listen to music?';
+
+        // Update gender buttons
+        document.getElementById('male').textContent = 'Male';
+        document.getElementById('female').textContent = 'Female';
+
+        // Update music listening options
+        document.querySelector('label[for="hours_none"]').textContent = "I don't listen to music";
+        document.querySelector('label[for="hours_less_than_1"]').textContent = 'Less than an hour';
+        document.querySelector('label[for="hours_between_1_3"]').textContent = 'Between 1 and 3 hours';
+        document.querySelector('label[for="hours_more_than_3"]').textContent = 'More than 3 hours';
+
+        // Update submit button
+        document.querySelector('button[type="submit"]').textContent = 'Submit';
+    }
+
+    // Automatically select and update to Danish if user's language is Danish
+    document.addEventListener('DOMContentLoaded', function() {
+        const userLanguage = navigator.language || navigator.userLanguage;
+        if (userLanguage.startsWith('da')) {
+            selectLanguage('prefer-danish');
+        } else {
+            selectLanguage('prefer-english');
+        }
+    });
+
+
+    function selectSex(sex) {
+        var sexButtons = document.querySelectorAll('.sex-button');
+        sexButtons.forEach(function(btn) {
+            btn.classList.remove('active');
+        });
+        document.getElementById(sex).classList.add('active');
+        document.getElementById('sex').value = sex;
+    }
+
+    // Automatically select and update to Danish if user's language is Danish
+    document.addEventListener('DOMContentLoaded', function() {
+        const userLanguage = navigator.language || navigator.userLanguage;
+        if (userLanguage.startsWith('da')) {
+            selectLanguage('prefer-danish');
+        } else {
+            selectLanguage('prefer-english');
+        }
+    });
+
+    document.getElementById('userInfoForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        // Collect form data
+        var preferredLanguage = document.getElementById('preferred-language').value;
+        var age = document.getElementById('age').value;
+        var sex = document.getElementById('sex').value;
+        var currentNationality = document.getElementById('currentNationality').value;
+        var birthNationality = document.getElementById('birthNationality').value;
+        var musicListening = '';
+        var musicHoursRadios = document.getElementsByName('musicHours');
+        for (var i = 0; i < musicHoursRadios.length; i++) {
+            if (musicHoursRadios[i].checked) {
+                musicListening = musicHoursRadios[i].value;
+                break;
+            }
+        }
+
+        // Validations
+        var errors = [];
+        if (age < 10 || age > 100) errors.push("Age must be between 10 and 100.");
+        if (sex === "") errors.push("Please select your gender.");
+        if (birthNationality === '') errors.push("Please select a nationality.");
+        if (currentNationality === '') errors.push("Please select a country.");
+        if (musicListening === '') errors.push("Please select how many hours a day you listen to music.");
+        if (errors.length > 0) {
+            alert(errors.join("\n"));
+            return;
+        }
+
+        // Create JSON object
+        var formData = {
+            age: age,
+            sex: sex,
+            current_nationality: currentNationality,
+            birth_nationality: birthNationality,
+            music_listening: musicListening,
+            preferred_language: preferredLanguage,
+        };
+
+        // Send data to Flask server
+        fetch('/submit_user_info', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = '/intro_tutorial.html';
+                } else {
+                    console.log(data);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+
+</script>
+</body>
+</html>

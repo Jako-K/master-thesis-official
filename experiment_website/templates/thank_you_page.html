@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+    <title>Thank You for Participating</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .thank-you-container {
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 50px;
+            border-radius: 10px;
+            background-color: #fff;
+            max-width: 600px;
+        }
+
+        .thank-you-container h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+
+        .thank-you-container p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        .thank-you-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            padding: 15px 30px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .thank-you-button:hover {
+            background-color: #0056b3;
+        }
+
+        .feedback-section {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .feedback-section label {
+            font-size: 16px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .feedback-section textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .submit-feedback-button {
+            margin-top: 20px;
+            background-color: #28a745;
+            color: white;
+            font-size: 16px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .submit-feedback-button:hover {
+            background-color: #218838;
+        }
+    </style>
+
+</head>
+<body>
+<div class="thank-you-container">
+    <h1>Thank You for Participating!</h1>
+    <p>Your responses have been submitted. I appreciate your time and effort!</p>
+
+    <div class="feedback-section">
+        <textarea id="feedback" name="feedback" placeholder="Enter your feedback here..."></textarea>
+        <button class="submit-feedback-button">Submit Feedback</button>
+    </div>
+</div>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const feedbackButton = document.querySelector('.submit-feedback-button');
+        feedbackButton.addEventListener('click', function () {
+            const feedback = document.getElementById('feedback').value;
+            console.log(feedback)
+            if (feedback) {
+                fetch('/submit_feedback', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ feedback: feedback })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.querySelector('.feedback-section').style.display = 'none';
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while submitting your feedback. Please try again later.');
+                    });
+            } else {
+                alert('Please enter your feedback before submitting.');
+            }
+        });
+
+        // Call the language preference function on page load
+        checkLanguagePreference();
+    });
+
+    // Function to fetch preferred language and apply changes
+    function checkLanguagePreference() {
+        fetch('/what-langauge-do-the-user-prefer')
+            .then(response => response.json())
+            .then(data => {
+                if (data.preferred_language === "prefer-danish") {
+                    translateToDanish();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Function to change all texts to Danish
+    function translateToDanish() {
+        document.querySelector('h1').textContent = 'Tak for din deltagelse!';
+        document.querySelector('p').textContent = 'Dine svar er blevet indsendt. Jeg sætter stor pris på din tid og indsats!';
+        document.querySelector('.submit-feedback-button').textContent = 'Indsend feedback';
+        document.getElementById('feedback').placeholder = 'Indtast din feedback her...';
+    }
+
+    document.addEventListener('DOMContentLoaded', checkLanguagePreference);
+
+</script>
+
+</body>
+</html>

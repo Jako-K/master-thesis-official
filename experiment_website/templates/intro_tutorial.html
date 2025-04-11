@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Instructions</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        .content-container {
+            max-width: 1280px;
+            padding: 40px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .text-sections {
+            width: 425px;
+            padding-right: 20px;
+        }
+
+        .image-section {
+            flex: 4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .description {
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .centered-image {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .start-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .instructions-heading,
+        .note-heading {
+            margin-bottom: 5px;
+        }
+
+        .steps-content,
+        .note-content {
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+
+            .text-sections {
+                padding-right: 0;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="content-container">
+    <!-- Main content -->
+    <div class="main-content">
+        <!-- Left Side: Text sections -->
+        <div class="text-sections">
+            <div class="description">
+                <h2>Instructions</h2>
+                <p class="instructions-heading"><strong>What do I need to do?</strong></p>
+                <p class="steps-content">
+                    1. Listen to a 10-second music clip.<br>
+                    2. Decide what you think about the music.<br>
+                    3. Choose 1-4 images that you think best match the sound.<br>
+                    4. Click the green "Submit" button when you're finished.
+                </p>
+                <p class="note-heading"><strong>Note:</strong></p>
+                <p class="note-content">
+                    • If you're unsure about an image, it's better not to select it.<br>
+                    • If the audio seems bad (very poor quality, no sound, etc.), click the red "Bad Audio" button.
+                </p>
+            </div>
+        </div>
+        <!-- Right Side: Image -->
+        <div class="image-section">
+            <img id="tutorial-image" src="static/tutorial_guide.jpg" alt="Tutorial Guide" class="centered-image">
+        </div>
+    </div>
+    <!-- Start Button -->
+    <button class="start-btn" onclick="startExperience()">START</button>
+</div>
+</body>
+</html>
+
+
+<script>
+    function startExperience() {
+        // Send a POST request to mark the intro as done and redirect to the main page
+        fetch('/intro_done', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ feedback: "Intro completed" })  // Optional feedback
+        })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;  // Redirect to the main page
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Function to fetch preferred language and apply changes
+    function checkLanguagePreference() {
+        fetch('/what-langauge-do-the-user-prefer')
+            .then(response => response.json())
+            .then(data => {
+                if (data.preferred_language === "prefer-danish") {
+                    translateToDanish();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Function to change all texts to Danish
+    function translateToDanish() {
+        document.querySelector('h2').textContent = 'Instruktioner';
+        document.querySelector('.instructions-heading strong').textContent = 'Hvad skal jeg?';
+
+        // Translate steps
+        document.querySelector('.steps-content').innerHTML =
+            '1. Lyt til et 10-sekunders musikklip.<br>' +
+            '2. Beslut hvad du syntes om musikken.<br>' +
+            '3. Vælg mellem 1-4 billeder, du synes passer bedst til lyden.<br>' +
+            '4. Klik på den grønne "Indsend" knap, når du er færdig.';
+
+        document.querySelector('.centered-image').alt = 'Vejledning til tutorial';
+
+        // Translate note heading and content
+        document.querySelector('.note-heading strong').textContent = 'Bemærk:';
+        document.querySelector('.note-content').innerHTML =
+            '• Er i tvivl om et billede, er det bedre ikke at vælge det.<br>' +
+            '• Hvis lyden er dårlig (meget lav kvalitet, ingen lyd, el.lign.), klik på den røde "Dårlig lyd" knap.';
+
+        document.querySelector('.start-btn').textContent = 'START';
+        document.getElementById('tutorial-image').src = 'static/tutorial_guide_dansk.jpg';
+    }
+
+    // Call the language preference function on page load
+    document.addEventListener('DOMContentLoaded', checkLanguagePreference);
+</script>
+
+</body>
+</html>

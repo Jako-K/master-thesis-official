@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+    <title>Audio Player with Song Preference</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 1440px;
+            margin: 20px auto;
+        }
+
+        .main-container {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            width: calc(100% - 10px); /* Reducing the total width slightly for padding on the sides */
+            max-width: 1440px;
+            gap: 20px; /* This sets the space between the grid-container and the column */
+            box-sizing: border-box;
+            {#border: 2px solid red; /* Optional: To show the outline of the main container */#}
+            height: 100%;
+            margin-left: 10px;
+            margin-right: 10px;
+            padding: 0 10px; /* Padding on both sides */
+        }
+
+        {#-----------------------------#}
+        {# Image Section #}
+        {#-----------------------------#}
+
+        .grid-container {
+            flex-grow: 4; /* Take up more space compared to the column */
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-sizing: border-box;
+            padding: 25px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            height: 100%;
+            margin-left: 15px;
+            overflow: hidden;
+        }
+
+        .grid-item {
+            position: relative;
+            cursor: pointer;
+            padding-bottom: 100%;
+            border-radius: 10px;
+            box-sizing: border-box;
+            transition: transform 0.3s ease;
+            user-select: none;
+        }
+
+        .grid-item img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .grid-item:hover {
+            transform: scale(1.025);
+        }
+
+        .grid-item.selected {
+            transform: scale(1.075);
+            opacity: 0.25;
+        }
+
+        /* Checkmark overlay */
+        .grid-item .checkmark {
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 150px;
+            color: green;
+            display: none;
+            pointer-events: none;
+        }
+
+        .grid-item.selected .checkmark {
+            display: block;
+        }
+
+        {#-----------------------------#}
+        {# Column Section #}
+        {#-----------------------------#}
+
+        .column {
+            flex-grow: 0;
+            width: 21%;
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 18px;
+            margin-right: 15px;
+            box-sizing: border-box;
+        }
+
+        .progress-container {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .progress-inner-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e4e4e4;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #007bff;
+        }
+
+        .audio-container {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .song-preference-wrapper {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        .submit-container {
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .label-question {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .button-small {
+            border: 1px solid lightgray;
+            height: 50px;
+            border-radius: 5px;
+            margin: 5px;
+            width: 100%;
+            font-size: 18px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .button-small:hover {
+            background-color: #e4e4e4;
+        }
+
+        .button-small.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .bad-audio {
+            background-color: darkred;
+            color: white;
+            font-size: 18px;
+        }
+
+        .bad-audio:hover {
+            background-color: red;
+        }
+
+        .button-big {
+            width: 100%;
+            height: 50px;
+            border-radius: 5px;
+            font-size: 18px;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        .button-big:hover {
+            background-color: #218838;
+        }
+
+        /* General styling for the audio player */
+        #audio-player {
+            background-color: white;
+            border-radius: 5px;
+            width: 100%;
+            height: 40px;
+            display: block;
+            outline: none;
+        }
+
+        /* Chrome-specific styling */
+        #audio-player::-webkit-media-controls {
+            background-color: white;
+            border-radius: 5px;
+        }
+
+        /* Remove the default appearance in Firefox */
+        #audio-player {
+            -moz-appearance: none; /* Firefox */
+        }
+
+        /* For better control across browsers */
+        #audio-player::-webkit-media-controls-panel {
+            background-color: white;
+        }
+
+
+    </style>
+</head>
+<body>
+<!-- Main Container for Image Section and Column Section -->
+<div class="main-container">
+    <!-- Column Section with Progress, Audio, Buttons, and Submit -->
+    <div class="column">
+        <!-- Progress Section -->
+        <div class="progress-container">
+            <label class="label-question">Progress</label>
+            <div class="progress-inner-container">
+                <span id="progress-text">0/0</span>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 2.3%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audio Section -->
+        <div class="audio-container">
+            <audio controls id="audio-player" autoplay onloadedmetadata="this.volume=0.5">
+                <source id="audio-source" src="" type="audio/mp3">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+
+        <!-- Song preference options -->
+        <div class="song-preference-wrapper">
+            <label class="label-question">Did you like the song?</label>
+            <button class="button-small" id="button-yes" onclick="reportPreferences(this)">
+                <span class="smiley">&#x1F60A;</span> Yes
+            </button>
+            <button class="button-small" id="button-unsure" onclick="reportPreferences(this)">
+                <span class="smiley">&#x1F610;</span> Not sure
+            </button>
+            <button class="button-small" id="button-no" onclick="reportPreferences(this)">
+                <span class="smiley">&#x1F612;</span> No
+            </button>
+            <button class="button-small bad-audio" onclick="reportBadAudio()"> Bad Audio</button>
+        </div>
+
+        <!-- Submit Button in a Container -->
+        <div class="submit-container">
+            <button class="button-big" onclick="submitSelection()"> Submit </button>
+        </div>
+    </div>
+
+    <!-- Image Section -->
+    <div class="grid-container" id="image-grid">
+        <!-- Images will be loaded here -->
+    </div>
+</div>
+
+
+
+
+<script>
+    let selectedImages = []; // Only holds the URLs of the selected images
+    let imageUrls = []; // Holds the URLs of all images displayed
+    let audioUrl = ''; // Holds the current audio URL
+    let likeButtonSelected = '';
+    const MIN_NUMBER_OF_IMAGES = 1;
+    const MAX_NUMBER_OF_IMAGES = 4;
+    let userInteractions = [];
+    let startTime = null;
+    let userProgressIndex = 0;
+
+    ////////////////////////////////////
+    // Time logging
+    ////////////////////////////////////
+
+    // Audio player
+    const audioPlayer = document.getElementById('audio-player');
+    audioPlayer.addEventListener('play', () => {logAudioInteraction('play');});
+    audioPlayer.addEventListener('pause', () => {logAudioInteraction('pause');});
+    audioPlayer.addEventListener('ended', () => {logAudioInteraction('ended');});
+    audioPlayer.addEventListener('seeking', () => {logAudioInteraction('seeking');});
+    audioPlayer.addEventListener('seeked', () => {logAudioInteraction('seeked');});
+    function logAudioInteraction(action) {
+        const timestamp = new Date().toISOString();  // Use current timestamp
+        if ((userInteractions.length === 0) && (action === "play")) {
+            startTime = timestamp;
+            action = "autoplay"
+        }
+        else{
+            userInteractions.push({content:"audio-player", action: action, timestamp: timestamp});
+        }
+    }
+
+
+    // Like buttons
+    const likeButtons = document.querySelectorAll('.button-small');
+    likeButtons.forEach(button => {button.addEventListener('click', () => { logLikeInteraction(button.id); });});
+    function logLikeInteraction(buttonId) {
+        const timestamp = new Date().toISOString();
+        let action;
+        if (buttonId === 'button-yes') {
+            action = 'like-yes';
+        } else if (buttonId === 'button-unsure') {
+            action = 'like-unsure';
+        } else if (buttonId === 'button-no') {
+            action = 'like-no';
+        }
+        userInteractions.push({content:"like-button", action: action, timestamp: timestamp});
+    }
+
+    ////////////////////////////////////
+    // Other
+    ////////////////////////////////////
+
+    function updateProgress(n, N) {
+        const percentage = (n / N) * 100;
+        document.getElementById('progress-bar').style.width = percentage + '%';
+        document.getElementById('progress-text').textContent = `${n}/${N}`;
+    }
+
+    // Load images dynamically
+    async function loadImagesAndSound() {
+        const response = await fetch('/get_data');
+        console.log(response);
+        if (response.redirected) {
+            window.location.href = response.url;
+            return;
+        }
+        const data = await response.json();
+        if (!response.ok) {
+            console.error('HTTP error:', response.status);
+            updateProgress(userProgressIndex + 1, totalNumberOfSamples);
+            return;
+        }
+
+        userProgressIndex = data.user_current_progress_index;
+        totalNumberOfSamples = data.total_number_of_samples;
+        updateProgress(userProgressIndex + 1, totalNumberOfSamples);
+
+        // Load images and store URLs
+        const imageGrid = document.getElementById('image-grid');
+        imageUrls = data.images; // Store all image URLs
+        data.images.forEach((imgUrl, index) => {
+            let imgContainer = document.createElement('div');
+            imgContainer.className = "grid-item";
+
+            let imgElement = document.createElement('img');
+            imgElement.src = imgUrl;  // Directly use the URL from the array
+            imgElement.draggable = false;  // Disable dragging
+            imgContainer.onclick = () => selectImage(imgUrl, imgContainer);  // Pass the image URL instead of index
+
+            // Create the checkmark element
+            let checkmark = document.createElement('span');
+            checkmark.className = "checkmark";
+            checkmark.innerHTML = "✔";  // Checkmark symbol
+
+            imgContainer.appendChild(imgElement);
+            imgContainer.appendChild(checkmark);
+            imageGrid.appendChild(imgContainer);
+        });
+
+        // Load audio and store the audio URL
+        audioUrl = data.audio;
+        document.getElementById('audio-source').src = audioUrl;
+        document.getElementById('audio-player').load();
+    }
+
+    function updateProgress(n, N) {
+        const percentage = (n / N) * 100;
+        document.getElementById('progress-bar').style.width = percentage + '%';
+        document.getElementById('progress-text').textContent = `${n}/${N}`;
+    }
+
+    function reportBadAudio() {
+        const userConfirmed = confirm("Do you want to report an issue with this audio clip?");
+        if (!userConfirmed) {return;}
+
+        fetch('/report_bad_audio', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                audio_path: audioUrl
+            }),
+        })
+            .then(
+                response => response.json()
+            )
+            .then(data => {
+                console.log('Bad audio reported:', data);
+                window.location.reload(); // Reload to get new audio
+            })
+            .catch(error => {
+                alert('An unexpected error occurred while submitting the data. Please reload the page and try again.');
+                console.error('Error:', error);
+            });
+    }
+
+    function reportPreferences(button) {
+        const buttons = document.querySelectorAll('.button-small');
+        buttons.forEach(btn => btn.classList.remove('selected'));
+        button.classList.add('selected');
+        if (button.id === "button-yes"){likeButtonSelected = "yes"}
+        else if (button.id === "button-unsure"){likeButtonSelected = "unsure"}
+        else if (button.id === "button-no"){likeButtonSelected = "no"}
+    }
+
+    // Handle image selection by tracking the image URL and toggling checkmark
+    function selectImage(imageUrl, imgContainer) {
+        const timestamp = new Date().toISOString();
+
+        if (selectedImages.includes(imageUrl)) {
+            // If the image is already selected, deselect it
+            selectedImages = selectedImages.filter(url => url !== imageUrl); // Remove the image from the selected array
+            imgContainer.classList.remove('selected');
+            userInteractions.push({ content: "image-click", action: "unclicked", imageUrl: imageUrl, timestamp: timestamp });
+        } else {
+            // If the image is not selected yet, select it
+            if (selectedImages.length >= MAX_NUMBER_OF_IMAGES) {
+                alert("You cannot pick more than 4 images.");
+                return;
+            }
+            selectedImages.push(imageUrl); // Add the image to the selected array
+            imgContainer.classList.add('selected');
+            userInteractions.push({ content: "image-click", action: "clicked", imageUrl: imageUrl, timestamp: timestamp });
+        }
+    }
+
+
+    // Submit data in the specified format
+    function submitSelection() {
+        // Generate is_selected array based on whether each image URL is in selectedImages
+        const is_selected = imageUrls.map(url => selectedImages.includes(url) ? 1 : 0);
+        if (!likeButtonSelected) {
+            alert("Please select if you like the song.");
+            return;
+        }
+        if (selectedImages.length < MIN_NUMBER_OF_IMAGES) {
+            alert("You must select at least 1 image.");
+            return;
+        }
+
+        // Prepare data to send back
+        const timestamp = new Date().toISOString();
+        userInteractions.push({ content: "submit-button", action: "clicked", timestamp: timestamp});
+        const postData = {
+            is_selected: is_selected,
+            image_paths: imageUrls,
+            audio_path: audioUrl,
+            liked_song: likeButtonSelected,
+            user_interactions: userInteractions
+        };
+
+        // Send the POST request
+        fetch('/submit_data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(postData),
+        })
+            .then(response => {
+                // Check if the response is OK (status code 200)
+                if (!response.ok) {
+                    return response.json().then(errData => {
+                        // Handle error response (status code not 200)
+                        console.error('Server Error:', errData.error);
+                        alert(`Error: ${errData.error}`);
+                    });
+                }
+                if (response.redirected) {
+                    window.location.href = response.url;
+                    return
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Only reload the page or handle success if no error occurred
+                if (data) {
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                // Handle network errors or other issues
+                alert('An unexpected error occurred while submitting the data. Please reload the page and try again.');
+                console.error('Network Error:', error);
+            });
+    }
+    // Handle Bad Audio report
+    function reportBadAudio() {
+        const userConfirmed = confirm("Do you want to report an issue with this audio clip?");
+        if (!userConfirmed) {return;}
+
+        fetch('/report_bad_audio', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                audio_path: audioUrl
+            }),
+        })
+        .then(
+            response => response.json()
+        )
+        .then(data => {
+            console.log('Bad audio reported:', data);
+            window.location.reload(); // Reload to get new audio
+        })
+        .catch(error => {
+            alert('An unexpected error occurred while submitting the data. Please reload the page and try again.');
+            console.error('Error:', error);
+        });
+    }
+
+
+    // Function to fetch preferred language and apply changes
+    function checkLanguagePreference() {
+        fetch('/what-langauge-do-the-user-prefer')
+            .then(response => response.json())
+            .then(data => {
+                if (data.preferred_language === "prefer-danish") {
+                    translateToDanish();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    // Function to change all texts to Danish
+    function translateToDanish() {
+        // Update 'Progress' label
+        document.querySelector('.progress-container .label-question').textContent = 'Status';
+
+        // Update 'Did you like the sound?' label
+        document.querySelector('.song-preference-wrapper .label-question').textContent = 'Kunne du lide sangen?';
+
+        // Update buttons
+        document.getElementById('button-yes').innerHTML = '<span class="smiley">&#x1F60A;</span> Ja';
+        document.getElementById('button-unsure').innerHTML = '<span class="smiley">&#x1F610;</span> Ikke sikker';
+        document.getElementById('button-no').innerHTML = '<span class="smiley">&#x1F612;</span> Nej';
+        document.querySelector('.bad-audio').textContent = 'Dårlig lyd';
+
+        // Update 'Submit' button
+        document.querySelector('.button-big').textContent = 'Indsend';
+    }
+
+    // Call the language preference function on page load
+    document.addEventListener('DOMContentLoaded', checkLanguagePreference);
+
+    // Load images and audio on page load
+    loadImagesAndSound();
+
+</script>
+</body>
+</html>
