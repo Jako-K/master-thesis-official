@@ -18,7 +18,7 @@ from helpers import (
     submit_labeling,
     submit_bad_audio,
     INVITE_CODE,
-    BYPASS_REGISTRATION_KEY,    
+    BYPASS_REGISTRATION_KEY,
     get_path_valid_timestamp,
     all_country_list,
     get_labeling_data,

@@ -1,0 +1,172 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.5em;
+    margin: 40px;
+    padding: 0;
+    overflow: hidden;
+}
+#dot-container {
+    width: 80%;
+    height: 80vh;
+    border: 1px solid black;
+    position: relative;
+    background-color: #f5f5f5;
+    margin: 0 auto;
+    overflow: visible;
+}
+.axis-label-container {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    pointer-events: none; /* Ensure labels don't interfere with interaction */
+}
+.axis-label {
+    font-size: 0.9em; /* Main label */
+    font-weight: bold;
+}
+.axis-label .secondary-text {
+    font-size: 0.75em; /* Secondary text */
+    font-weight: normal;
+}
+
+/* Y-axis labels (Valence) */
+#y-label-low-container {
+    bottom: -40px;
+}
+#y-label-high-container {
+    top: -40px;
+}
+
+/* X-axis labels (Arousal) */
+.x-axis-label {
+    position: absolute;
+    text-align: center;
+    width: 150px;
+}
+#x-label-low-container {
+    left: -160px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+#x-label-high-container {
+    right: -160px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.image-wrapper {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    z-index: 2;
+    cursor: pointer;
+}
+.image {
+    width: 100%;
+    height: 100%;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    z-index: 3;
+}
+.image-wrapper:hover .image {
+    transform: scale(1.5);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+.grid-cell {
+    position: absolute;
+    width: 10%;
+    height: 10%;
+    z-index: 1;
+    display: none;  /* Ensure the grid cells are hidden by default */
+}
+#image-popup {
+    display: none;
+    position: absolute;
+    max-width: 400px;
+    border: 2px solid black;
+    background-color: white;
+    padding: 10px;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.popup-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    font-size: 0.7em;
+    margin-bottom: 10px;
+}
+
+.small-info {
+    font-size: 0.7em;
+}
+
+#popup-image {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.popup-prompt, .popup-revised-prompt {
+    font-size: 0.5em;
+    margin-top: 10px;
+}
+
+#genre-filters {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));  /* Slightly wider to improve readability */
+    gap: 10px;
+    justify-items: start;
+    margin-top: 20px;
+    font-size: 0.55em;
+    text-align: left;
+    padding: 10px;
+    padding-top: 40px;
+}
+
+#genre-filters label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    transition: background-color 0.1s ease;
+}
+
+#genre-filters label:hover {
+    background-color: #e0e0e0;  /* Highlighted background on hover */
+}
+
+.genre-checkbox:checked + label {
+    background-color: #cfe2ff;  /* Light blue background for selected genres */
+}
+
+#toggle-all-genres {
+    margin-top: 10px;
+    display: block;
+    cursor: pointer;
+    padding: 8px 12px;
+    background-color: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+#toggle-all-genres:hover {
+    background-color: #e0e0e0;
+}
+
+#selected-genres {
+    margin-top: 10px;
+    font-size: 0.8em;
+    color: #555;
+}

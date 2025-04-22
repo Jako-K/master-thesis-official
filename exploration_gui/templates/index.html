@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dot Explorer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='global.css') }}">
+    <script src="{{ url_for('static', filename='global_logic.js') }}"></script>
+</head>
+<body>
+
+<div id="dot-container">
+    <!-- Y-axis Labels -->
+    <div id="y-label-low-container" class="axis-label-container">
+        <div class="axis-label">
+            Low Arousal
+            <span class="secondary-text">(calm, peaceful, relaxed, fated, soft...)</span>
+        </div>
+    </div>
+    <div id="y-label-high-container" class="axis-label-container">
+        <div class="axis-label">
+            High Arousal
+            <span class="secondary-text">(Intense, exciting, tense, vibrant, sharp...)</span>
+        </div>
+    </div>
+
+    <!-- X-axis Labels -->
+    <div id="x-label-low-container" class="x-axis-label">
+        <div class="axis-label">
+            Low Valence
+            <span class="secondary-text">(Negative, Sad, melancholic, cold, dark...)</span>
+        </div>
+    </div>
+    <div id="x-label-high-container" class="x-axis-label">
+        <div class="axis-label">
+            High Valence
+            <span class="secondary-text">(Positive, Happy, joyful, warm, bright...)</span>
+        </div>
+    </div>
+</div>
+
+<div id="image-popup">
+    <div class="popup-info">
+        <div id="popup-track-name" class="small-info"></div>
+        <div id="popup-artists" class="small-info"></div>
+        <div id="popup-track_genre" class="small-info"></div>
+        <div id="popup-popularity" class="small-info"></div>
+        <div id="popup-danceability" class="small-info"></div>
+        <div id="popup-energy" class="small-info"></div>
+        <div id="popup-loudness" class="small-info"></div>
+        <div id="popup-valence" class="small-info"></div>
+    </div>
+    <img id="popup-image" src="" alt="Image">
+    <div class="popup-prompt" id="popup-prompt"></div>
+    <div class="popup-revised-prompt" id="popup-revised-prompt"></div>
+    <audio id="audio-player"></audio>
+</div>
+
+<!-- Genre filter section -->
+<div id="genre-filters"></div>
+<button id="toggle-all-genres">Toggle All Genres</button>
+<div id="selected-genres">Selected Genres: 0</div>
+
+</body>
+
+</html>
