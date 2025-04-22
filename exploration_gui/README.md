@@ -1,5 +1,9 @@
 # Dot Explorer – Valence × Arousal Audio‑Image Map
 
+
+https://github.com/user-attachments/assets/b7950699-bb06-4533-b1bb-25d3dcbcbee8
+
+
 ## What this program lets you do
 
 - Hover over any point to view metadata and click to play its audio clip.
