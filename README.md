@@ -14,7 +14,7 @@ jupyter lab dataset_creation/1_clean_spotify_dataset.ipynb  # recreate dataset
 
 jupyter lab A2I_model/align_audio_with_text_encoder.ipynb   # train
 
-pip install -r experiment_website/requirements.txt
+pip install flask
 python experiment_website/main.py                           # localhost:5000
 
 python exploration_gui/main_server.py                       # valence–arousal map
