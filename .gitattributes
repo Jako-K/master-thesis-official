@@ -1,0 +1,2 @@
+dataset/Dataset40k/dataset.csv filter=lfs diff=lfs merge=lfs -text
+weights/pretrained.pth filter=lfs diff=lfs merge=lfs -text
